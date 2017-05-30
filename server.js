@@ -3,10 +3,14 @@
 
 // init project
 var express = require('express');
+var moment = require('moment');
 var app = express();
 
+
+const port = process.env.port || 3000;
+
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
-// so that your API is remotely testable by FCC 
+// so that your API is remotely testable by FCC
 var cors = require('cors');
 app.use(cors({optionSuccessStatus: 200}));  // some legacy browsers choke on 204
 
@@ -19,14 +23,24 @@ app.get("/", function (req, res) {
 });
 
 
-// your first API endpoint... 
+// your first API endpoint...
 app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-
+app.get('/api/timestamp/:date_string?',function(req,res){
+  if(!req.params.date_string){
+    res.json({unix : moment().format("x"), utc: new Date().toUTCString()});
+  }
+  if(!moment(req.params.date_string).isValid())
+    res.json({unix: null, utc: "Invalid Date"});
+  else res.json({
+    unix: moment(req.params.date_string).format("x"),
+    utc : new Date(req.params.date_string).toUTCString()
+  });
+});
 
 // listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
+var listener = app.listen(port, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
